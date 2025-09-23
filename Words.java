@@ -1,3 +1,5 @@
+//This class includes both the original, postive & negative review words
+//This does not need to be done this way - it is just a suggestion
 public class Words {
     String origWord;
     String editWord;
