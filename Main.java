@@ -1,17 +1,19 @@
+//NAME: Ryan Montgomery
+//ASSIGNMENT: Program 3 Sentiment Analysis
+//LECTURE SECTION: Tu/Thurs
+
+//Import needed files
 import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileNotFoundException;
-//NAME:
-//ASSIGNMENT:
-//LAB SECTION
-//LECTURE SECTION:
+
 
 public class Main{
-
     public static void main(String[] args) throws FileNotFoundException {
+        //Declare ArrayLists
         ArrayList<SentList> sentList = new ArrayList<SentList>();
         ArrayList<SentList> posList = new ArrayList<SentList>();
         ArrayList<SentList> negList = new ArrayList<SentList>();
@@ -37,11 +39,12 @@ public class Main{
         outFile.close();
     }
 
-    //PRE:  accept the empty ArrayLists created in main
-    //POST: the arrays are loaded with the proper words and information
+
     public static void readSentimentList(ArrayList<SentList> sentList,
                                          ArrayList<SentList> posList,
                                          ArrayList<SentList> negList){
+    //PRE:  accept the empty ArrayLists created in main
+    //POST: the arrays are loaded with the proper words and information
         String csvFilePath = "sentiment.txt";
         String line;
         double tempValue;
@@ -62,18 +65,18 @@ public class Main{
         }
     }
 
-    //PRE: accept the word lists and file name to open
-    //POST: read the file while the line is not null
-    //      each word is edited (to lower case without punctuation)
-    //      the sentiment value is accessed
-    //      if the word is positive - update to a random word in the negative list and update the word value
-    //      if the word is negative - update to a random positive word in the positive list & update the word value
-
     public static boolean readReview(ArrayList<SentList> sentList,
                                   ArrayList<SentList> posList,
                                   ArrayList<SentList> negList,
                                   ArrayList<Words> wordList,
                                   String fileName){
+
+        //PRE: accept the word lists and file name to open
+        //POST: read the file while the line is not null
+        //      each word is edited (to lower case without punctuation)
+        //      the sentiment value is accessed
+        //      if the word is positive - update to a random word in the negative list and update the word value
+        //      if the word is negative - update to a random positive word in the positive list & update the word value
 
         String line;
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -100,26 +103,25 @@ public class Main{
         }
     }
 
-    //PRE:  accept the updated wordlist
-    //POST: loop through word list, create a string that will be the original, positive & negative reviews
-    //      print each review
     public static void printReview(ArrayList<Words> wordList, String inFile, 
                                   PrintWriter outFile){
-
+        //PRE:  accept the updated wordlist
+        //POST: loop through word list, create a string that will be the original, positive & negative reviews
+        //      print each review
  
     }
 
-    //PRE:  accept a character
-    //POST: return true if this character is punctuation; false otherwise
     static boolean isPunctuation(char ch) {
+        //PRE:  accept a character
+        //POST: return true if this character is punctuation; false otherwise 
         if (ch == '!' || ch == '\"' || ch == '#' || ch == '$' || ch == '%' || ch == '&' || ch == '\'' || ch == '(' || ch == ')' || ch == '*' || ch == '+' || ch == ',' || ch == '-' || ch == '.' || ch == '/' || ch == ':' || ch == ';' || ch == '<' || ch == '=' || ch == '>' || ch == '?' || ch == '@' || ch == '[' || ch == '\\' || ch == ']' || ch == '^' || ch == '`' || ch == '{' || ch == '|' || ch == '}')
           return true;
         return false;
     }
 
-    //PRE:  accept the sentiment words list and a word to find
-    //POST: return the value of the sentiment if found, 0 otherwise
     static double getSentiment (ArrayList<SentList> sentList, String eWord) {
+        //PRE:  accept the sentiment words list and a word to find
+        //POST: return the value of the sentiment if found, 0 otherwise
         for (int w = 0; w < sentList.size(); w++){
             if (eWord.equals(sentList.get(w).word)){
                 return sentList.get(w).value;
