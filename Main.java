@@ -4,6 +4,7 @@
 
 //Import needed files
 import java.util.ArrayList;
+import java.util.Vector;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.FileReader;
@@ -13,13 +14,13 @@ import java.io.FileNotFoundException;
 
 public class Main{
     public static void main(String[] args) throws FileNotFoundException {
-        //Declare ArrayLists
-        ArrayList<SentList> sentList = new ArrayList<SentList>();
-        ArrayList<SentList> posList = new ArrayList<SentList>();
-        ArrayList<SentList> negList = new ArrayList<SentList>();
-        ArrayList<Words> wordList = new ArrayList<Words>();
+        //Declare Vectors
+        Vector<SentList> sentList = new Vector<SentList>();
+        Vector<SentList> posList = new Vector<SentList>();
+        Vector<SentList> negList = new Vector<SentList>();
+        Vector<Words> wordList = new Vector<Words>();
 
-        //load sentiment, positive words and negative words arraylists
+        //load sentiment, positive words and negative words vectors
         readSentimentList(sentList, posList, negList);
 
         //read review
@@ -27,36 +28,54 @@ public class Main{
         String inFileName;
         String outFileName = "reviews.txt";
         PrintWriter outFile = new PrintWriter(outFileName);
+        boolean readSuccess = false;
 
         // open input file adding review + number + ".txt" to review
         // if not able to open, print a message and continue
         // else process the file
         // if the file can be read properly, print the results
         for (int i = 1; i <= 8; i++){
- 
+            inFileName = "review"+i+".txt";
+            readSuccess = readReview(sentList, posList, negList, wordList, inFileName);
         }
 
         outFile.close();
     }
 
-
-    public static void readSentimentList(ArrayList<SentList> sentList,
-                                         ArrayList<SentList> posList,
-                                         ArrayList<SentList> negList){
+    public static void readSentimentList(Vector<SentList> sentList,
+                                         Vector<SentList> posList,
+                                         Vector<SentList> negList){
     //PRE:  accept the empty ArrayLists created in main
     //POST: the arrays are loaded with the proper words and information
         String csvFilePath = "sentiment.txt";
         String line;
         double tempValue;
+        String tempString;
+        //Open the sentiment file
         try (BufferedReader br = new BufferedReader(new FileReader(csvFilePath))) {
+            //Read the file line by line until the end of the file
             while ((line = br.readLine()) != null) {
-                 // Split the line by commas into an array of strings
- 
+                 // Split the line by commas into a string array called parts
+                 // 0 is the sentiment string, 1 is the number value
+                 String[] parts = line.split(",");
                  
+                 //Assign the number to the double tempValue, and the string to a tempString
+                 tempValue = Double.parseDouble(parts[1].trim());
+                 tempString = parts[0];
+
                  //Create object SentList & add to sentList arraylist
- 
+                 SentList newEntry = new SentList(tempString, tempValue);
+                 sentList.add(newEntry);
+
                  //if word values are pos add to posList
+                 if (tempValue>1.25) {
+                    posList.add(newEntry);
+                 }
                  //if word values are neg, add to neglist
+                 else if (tempValue<-1.25) {
+                    negList.add(newEntry);
+                 }
+
             }
         } 
         catch (IOException e) {
@@ -65,10 +84,10 @@ public class Main{
         }
     }
 
-    public static boolean readReview(ArrayList<SentList> sentList,
-                                  ArrayList<SentList> posList,
-                                  ArrayList<SentList> negList,
-                                  ArrayList<Words> wordList,
+    public static boolean readReview(Vector<SentList> sentList,
+                                  Vector<SentList> posList,
+                                  Vector<SentList> negList,
+                                  Vector<Words> wordList,
                                   String fileName){
 
         //PRE: accept the word lists and file name to open
@@ -79,10 +98,11 @@ public class Main{
         //      if the word is negative - update to a random positive word in the positive list & update the word value
 
         String line;
+        char charWord;
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             while ((line = br.readLine()) != null) {
-                 // Split the line by commas into an array of strings
-                 String[] values = line.split(" ");
+                 // Split the line by regex space into an array of strings
+                 String[] pieces = line.split("\\s+");
                  
                  //for each word
                  //  strip off punctuation at the end of word set charWord to null or value of punctuation
@@ -91,8 +111,23 @@ public class Main{
                  //  look up word in sentList (set origValue, posVlue, negValue)
                  //  if positive enough, find new negword in negList & reset negWord & NegValue, reset negFlag
                  //  if negative enough, find new posword in posList & reset posWord & posValue, reset posFlag
-
-
+                for ( String word : pieces) {
+                    //Isolate the punctuation from the word string using regex
+                    String isolatedPunctuation = word.replaceAll("\\P{Punct}", "");
+                    if (isolatedPunctuation.length() > 0) {
+                        // If punctuation is found, assign the first character
+                        charWord = isolatedPunctuation.charAt(0); 
+                    } else {
+                        // If no punctuation is found, set the object reference to null
+                        charWord = '\0'; 
+                    }
+                    //Use regex to isolate and clean the the punctuation from the word
+                    word = word.replaceAll("\\p{Punct}", "");
+                    System.out.println("Words without punctuation is "+word);
+                    System.out.println("Punctuation in "+fileName+" is: "+charWord);
+                    
+                }
+                System.exit(0);
             }
             br.close();
             return true;
@@ -129,4 +164,5 @@ public class Main{
         }
         return 0.0;
     }
+
 }
