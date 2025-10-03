@@ -22,44 +22,50 @@ public class Main{
         Vector<SentList> posList = new Vector<SentList>();
         Vector<SentList> negList = new Vector<SentList>();
         ArrayList<Words> reviewWordList = new ArrayList<Words>();
-
-        //load all sentiment, positive words and negative words vectors
-        readSentimentList(sentList, posList, negList);
-
-        //read review
-        //load ArrayList wordList that will contain original review & pos & neg
-        String inFileName;
+        String inFileName, wordType;
         String outFileName = "reviews.txt";
         PrintWriter outFile = new PrintWriter(outFileName);
         double sentimentValue = 0;
 
-        // open input file adding review + number + ".txt" to review
-        // if not able to open, print a message and continue
-        // else process the file
-        // if the file can be read properly, print the results
+
+        //Read in the sentiment file and populate the appropriate lists
+        readSentimentList(sentList, posList, negList);
+
+
+        //Open the review files assuming they start with review followed by a number starting at 1
+        //and ending in .txt
         for (int i = 1; i <= 8; i++){
             inFileName = "review"+i+".txt";
             //Check if file exists, if so process for output, otherwise generate an error
             File fileExists = new File(inFileName);
             if (fileExists.exists()) {
-                //Read in review file
+                //Read in review file, populating the reviewWordList as part of the Words class
                 readReviewFile(inFileName, reviewWordList, sentList, negList, posList);
-                //Assign current label
+                //Assign current label and wordType
                 String currentLabel = "Original";
+                wordType = "edit";
                 //Begin processing original review file and format
-                formatPrintReview(reviewWordList, outFile, currentLabel, inFileName);
+                formatPrintReview(reviewWordList, outFile, currentLabel, inFileName, wordType);
                 //Calculate and pass the sentiment value
-                sentimentValue = calcSentiment(sentList, reviewWordList);
+                sentimentValue = calcSentiment(sentList, reviewWordList, wordType);
                 //Output the original sentiment
                 printSentiment(sentimentValue, outFile, currentLabel);
-                //Update label to positive
+                //Update label to positive and wordType
                 currentLabel = "Positive";
+                wordType = "pos";
                 //Output a more positive version of the review
+                formatPrintReview(reviewWordList, outFile, currentLabel, inFileName, wordType);
                 //Calculate new positive sentiment and output
-                //Update label to negative
+                sentimentValue = calcSentiment(sentList, reviewWordList, wordType);
+                printSentiment(sentimentValue, outFile, currentLabel);
+                //Update label to negative and wordType
                 currentLabel = "Negative";
+                wordType = "neg";
                 //Output a more negative version of the review
+                formatPrintReview(reviewWordList, outFile, currentLabel, inFileName, wordType);
                 //Calculate new negative sentiment and output
+                sentimentValue = calcSentiment(sentList, reviewWordList, wordType);
+                printSentiment(sentimentValue, outFile, currentLabel);
             }
             else {
                 System.out.println("Error: File "+inFileName+" does not exist!");
@@ -196,7 +202,9 @@ public class Main{
         }
     }
 
-    public static void formatPrintReview(ArrayList<Words> reviewWordList, PrintWriter outFile, String currentLabel, String fileName) {
+    public static void formatPrintReview(ArrayList<Words> reviewWordList, PrintWriter outFile, String currentLabel, 
+                                        String fileName, String wordType) {
+
         //PRE: Accept the word list of the review and the post to the outfile for writing
         //POST: Loop through to count 80 characters and after 80 characters insert a newline to outfile
         //
@@ -204,9 +212,30 @@ public class Main{
         outFile.print(currentLabel+" review for file: "+fileName+"\n\n");
         //Initialize the text string
         String text = "";
-        // Assign text and append a space to separate, creating a long string of the review
-        for (Words currentWord : reviewWordList) {
-            text += currentWord.origWord + " "; 
+
+        //Populate the large string based on wordType
+        switch (wordType) {
+            case "edit":
+                //for loop to make large string based on editWord
+                for (Words currentWord : reviewWordList) text += currentWord.origWord + " "; 
+                break;
+            case "pos":
+                for (Words currentWord : reviewWordList) {
+                    //Test if posword is blank, if so reassign to Orig word
+                    if (currentWord.posWord == "") text += currentWord.origWord + " ";
+                    else text += currentWord.posWord + " "; 
+                } 
+                break;
+            case "neg":
+                for (Words currentWord : reviewWordList) {
+                    //Test if posword is blank, if so reassign to Orig word
+                    if (currentWord.negWord == "") text += currentWord.origWord + " ";
+                    else text += currentWord.negWord + " "; 
+                }
+                break;
+            default:
+                System.out.println("Unknown wordType specified!");
+                break;
         }
         //Declare variables
         int startIndex = 0;
@@ -250,18 +279,38 @@ public class Main{
         outFile.print("\n\n");
     }
 
-    public static double calcSentiment(Vector<SentList> sentList, ArrayList<Words> reviewWordList) {
+    public static double calcSentiment(Vector<SentList> sentList, ArrayList<Words> reviewWordList, String wordType) {
         //PRE: Accept sentiment list to pass to getSentiment and reviewWordList for the review words
         //Post: Return the calculated sentiment value
         //
         //Declare Variables
         double sentValue = 0;
         double wordValue = 0;
-        String word;
+        String heading, suffix;
+        String word ="";
         //Open the file and process
         for (Words currentWord : reviewWordList) {
+            //System.out.println("Word type is "+wordType);
             //Get the lowercase word to compare
-            word = currentWord.editWord;
+            switch (wordType) {
+                case "edit":
+                    word = currentWord.editWord;
+                    break;
+                case "pos":
+                    word = currentWord.posWord;
+                    //If posword is null, revert to edit word
+                    if (word == "") word = currentWord.editWord;
+                    break;
+                case "neg":
+                    word = currentWord.negWord;
+                    //if negword is null, revert to edit word
+                    if (word == "") word = currentWord.editWord;
+                    break;
+                default:
+                    System.out.println("Unknown wordType specified!");
+                    break;
+            }
+            //System.out.println("Current word is: "+word);
             //Ensure word value is 0 before lookup
             wordValue = 0;
             //Get the sentiment
