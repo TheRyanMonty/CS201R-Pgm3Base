@@ -12,9 +12,10 @@ public class Words {
     static boolean posFlag = false;
     static boolean negFlag = false;
 
-    public Words(String o, String e, String p, String n, double s, double sp, double sn){
+    public Words(String o, String e, String c, String p, String n, double s, double sp, double sn){
         origWord = o;
         editWord = e; 
+        charWord = c;
         posWord = p;
         negWord = n;
         sentOrigValue = s;
@@ -33,5 +34,18 @@ public class Words {
     }
     public static boolean getNegFlag(){
         return negFlag;
+    }
+    @Override
+    public String toString() {
+        return "Words{" +
+                "origWord='" + origWord + '\'' +
+                ", editWord='" + editWord + '\'' +
+                ", charWord='" + charWord + '\'' +
+                ", posWord='" + posWord + '\'' +
+                ", negWord='" + negWord + '\'' +
+                ", sentOrigValue=" + sentOrigValue +
+                ", sentPosValue=" + sentPosValue +
+                ", sentNegValue=" + sentNegValue +
+                '}';
     }
 }
