@@ -96,7 +96,7 @@ public class Main{
                  if (tempValue>1.25) {
                     posList.add(newEntry);
                  }
-                 //if word values are neg, add to neglist
+                 //if word values are neg, add to negList
                  else if (tempValue<-1.25) {
                     negList.add(newEntry);
                  }
@@ -156,7 +156,7 @@ public class Main{
                     sentOrigValue = getSentiment(sentList, editWord);
                     //Assign posWord if the original word is less than negative one
                     if (sentOrigValue<-1) {
-                        //set upperbounds by determining the size of positive word list
+                        //set upperBounds by determining the size of positive word list
                         upperBounds = posList.size();
                         //Generate a random number and pull from the vector
                         int randomIndex = rand.nextInt(upperBounds);
@@ -167,7 +167,7 @@ public class Main{
                     }
                     //Assign negWord if original sentiment is greater than 1
                     if (sentOrigValue>1) {
-                        //set upperbounds by determining the size of positive word list
+                        //set upperBounds by determining the size of positive word list
                         upperBounds = negList.size();
                         //Generate a random number and pull from the vector
                         int randomIndex = rand.nextInt(upperBounds);
@@ -223,14 +223,14 @@ public class Main{
                 break;
             case "pos":
                 for (Words currentWord : reviewWordList) {
-                    //Test if posword is blank, if so reassign to Orig word
+                    //Test if posWord is blank, if so reassign to Orig word
                     if (currentWord.posWord == "") text += currentWord.origWord + " ";
                     else {
                         if (currentWord.charWord == "") {
                             //Add the positive word to the text string
                             text += currentWord.posWord + " "; 
                         }
-                        //If charWord isn't blank, append charword to the end of the positive word for text output
+                        //If charWord isn't blank, append charWord to the end of the positive word for text output
                         else {
                             text +=currentWord.posWord+currentWord.charWord+" ";
                         }
@@ -255,14 +255,14 @@ public class Main{
                 break;
             case "neg":
                 for (Words currentWord : reviewWordList) {
-                    //Test if negword is blank, if so reassign to Orig word
+                    //Test if negWord is blank, if so reassign to Orig word
                     if (currentWord.negWord == "") text += currentWord.origWord + " ";
                     else {
                         if (currentWord.charWord == "") {
                             //Add the negative word to the text string
                             text += currentWord.negWord + " "; 
                         }
-                        //If charWord isn't blank, append charword to the end of the negative word for text output
+                        //If charWord isn't blank, append charWord to the end of the negative word for text output
                         else {
                             text +=currentWord.negWord+currentWord.charWord+" ";
                         }
@@ -378,7 +378,6 @@ public class Main{
         //Declare Variables
         double sentValue = 0;
         double wordValue = 0;
-        String heading, suffix;
         String word ="";
         //Open the file and process
         for (Words currentWord : reviewWordList) {
@@ -390,12 +389,12 @@ public class Main{
                     break;
                 case "pos":
                     word = currentWord.posWord;
-                    //If posword is null, revert to edit word
+                    //If posWord is null, revert to edit word
                     if (word == "") word = currentWord.editWord;
                     break;
                 case "neg":
                     word = currentWord.negWord;
-                    //if negword is null, revert to edit word
+                    //if negWord is null, revert to edit word
                     if (word == "") word = currentWord.editWord;
                     break;
                 default:
@@ -430,5 +429,4 @@ public class Main{
         }
         return 0.0;
     }
-
 }

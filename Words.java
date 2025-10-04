@@ -35,7 +35,8 @@ public class Words {
     public static boolean getNegFlag(){
         return negFlag;
     }
-    /*@Override
+    //For testing output, syntax from google
+    @Override
     public String toString() {
         return "Words{" +
                 "origWord='" + origWord + '\'' +
@@ -47,5 +48,5 @@ public class Words {
                 ", sentPosValue=" + sentPosValue +
                 ", sentNegValue=" + sentNegValue +
                 '}';
-    }*/
+    }
 }
