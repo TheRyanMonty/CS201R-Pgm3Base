@@ -27,14 +27,13 @@ public class Main{
         PrintWriter outFile = new PrintWriter(outFileName);
         double sentimentValue = 0;
 
-
-        //Read in the sentiment file and populate the appropriate lists
+        //Read in the sentiment file to the vectors and populate the appropriate lists
         readSentimentList(sentList, posList, negList);
-
 
         //Open the review files assuming they start with review followed by a number starting at 1
         //and ending in .txt
-        for (int i = 1; i <= 8; i++){
+        for (int i = 1; i <= 8; i++) {
+            //Establish inFileName variable to pass into functions
             inFileName = "review"+i+".txt";
             //Check if file exists, if so process for output, otherwise generate an error
             File fileExists = new File(inFileName);
@@ -45,7 +44,7 @@ public class Main{
                 String currentLabel = "Original";
                 wordType = "edit";
                 //Begin processing original review file and format
-                formatPrintReview(reviewWordList, outFile, currentLabel, inFileName, wordType);
+                formatPrintReview(reviewWordList, outFile, currentLabel, inFileName, wordType, sentList);
                 //Calculate and pass the sentiment value
                 sentimentValue = calcSentiment(sentList, reviewWordList, wordType);
                 //Output the original sentiment
@@ -54,18 +53,12 @@ public class Main{
                 currentLabel = "Positive";
                 wordType = "pos";
                 //Output a more positive version of the review
-                formatPrintReview(reviewWordList, outFile, currentLabel, inFileName, wordType);
-                //Calculate new positive sentiment and output
-                sentimentValue = calcSentiment(sentList, reviewWordList, wordType);
-                printSentiment(sentimentValue, outFile, currentLabel);
+                formatPrintReview(reviewWordList, outFile, currentLabel, inFileName, wordType, sentList);
                 //Update label to negative and wordType
                 currentLabel = "Negative";
                 wordType = "neg";
                 //Output a more negative version of the review
-                formatPrintReview(reviewWordList, outFile, currentLabel, inFileName, wordType);
-                //Calculate new negative sentiment and output
-                sentimentValue = calcSentiment(sentList, reviewWordList, wordType);
-                printSentiment(sentimentValue, outFile, currentLabel);
+                formatPrintReview(reviewWordList, outFile, currentLabel, inFileName, wordType, sentList);
             }
             else {
                 System.out.println("Error: File "+inFileName+" does not exist!");
@@ -203,35 +196,94 @@ public class Main{
     }
 
     public static void formatPrintReview(ArrayList<Words> reviewWordList, PrintWriter outFile, String currentLabel, 
-                                        String fileName, String wordType) {
+                                        String fileName, String wordType, Vector<SentList> sentList) {
 
         //PRE: Accept the word list of the review and the post to the outfile for writing
         //POST: Loop through to count 80 characters and after 80 characters insert a newline to outfile
         //
         //Output the formatted review
-        outFile.print(currentLabel+" review for file: "+fileName+"\n\n");
+        outFile.print(currentLabel+" review for file: "+fileName);
         //Initialize the text string
         String text = "";
+        //Temporary Vectors
+        Vector<SentList> wordsReplaced = new Vector<SentList>();
+        Vector<SentList> newWords = new Vector<SentList>();
+        String tempWord = "";
+        double tempValue = 0;
+        double newWordTotal = 0;
+        double wordsReplacedTotal = 0;
 
         //Populate the large string based on wordType
         switch (wordType) {
             case "edit":
                 //for loop to make large string based on editWord
                 for (Words currentWord : reviewWordList) text += currentWord.origWord + " "; 
+                //Create space for next section
+                outFile.print("\n\n");
                 break;
             case "pos":
                 for (Words currentWord : reviewWordList) {
                     //Test if posword is blank, if so reassign to Orig word
                     if (currentWord.posWord == "") text += currentWord.origWord + " ";
-                    else text += currentWord.posWord + " "; 
+                    else {
+                        if (currentWord.charWord == "") {
+                            //Add the positive word to the text string
+                            text += currentWord.posWord + " "; 
+                        }
+                        //If charWord isn't blank, append charword to the end of the positive word for text output
+                        else {
+                            text +=currentWord.posWord+currentWord.charWord+" ";
+                        }
+                        //Add the original word and it's value to a words replaced sent vector
+                        tempWord  = currentWord.editWord;
+                        tempValue = currentWord.sentOrigValue;
+                        wordsReplacedTotal = wordsReplacedTotal+tempValue;
+                        wordsReplaced.add(new SentList(tempWord, tempValue));
+                        //Add the positive word and it's value to a new words sent vector
+                        tempWord = currentWord.posWord;
+                        tempValue = currentWord.sentPosValue;
+                        newWordTotal = newWordTotal+tempValue;
+                        newWords.add(new SentList(tempWord, tempValue));
+                    }
                 } 
+                //If new word total is = 0, print nothing to be done and return
+                if (newWordTotal == 0) {
+                    outFile.print("  Review cannot be made more positive!\n\n\n");
+                    return;
+                }
+                else outFile.print("\n\n");
                 break;
             case "neg":
                 for (Words currentWord : reviewWordList) {
-                    //Test if posword is blank, if so reassign to Orig word
+                    //Test if negword is blank, if so reassign to Orig word
                     if (currentWord.negWord == "") text += currentWord.origWord + " ";
-                    else text += currentWord.negWord + " "; 
+                    else {
+                        if (currentWord.charWord == "") {
+                            //Add the negative word to the text string
+                            text += currentWord.negWord + " "; 
+                        }
+                        //If charWord isn't blank, append charword to the end of the negative word for text output
+                        else {
+                            text +=currentWord.negWord+currentWord.charWord+" ";
+                        }
+                        //Add the original word and it's value to a words replaced sent vector
+                        tempWord  = currentWord.editWord;
+                        tempValue = currentWord.sentOrigValue;
+                        wordsReplacedTotal = wordsReplacedTotal+tempValue;
+                        wordsReplaced.add(new SentList(tempWord, tempValue));
+                        //Add the positive word and it's value to a new words sent vector
+                        tempWord = currentWord.negWord;
+                        tempValue = currentWord.sentNegValue;
+                        newWordTotal = newWordTotal+tempValue;
+                        newWords.add(new SentList(tempWord, tempValue));
+                    }
+                } 
+                //If new word total is = 0, return
+                if (newWordTotal == 0) {
+                    outFile.print("  Review cannot be made more negative!\n\n");
+                    return;
                 }
+                else outFile.print("\n\n");
                 break;
             default:
                 System.out.println("Unknown wordType specified!");
@@ -240,7 +292,7 @@ public class Main{
         //Declare variables
         int startIndex = 0;
         int length = text.length();
-        //Main loop to separate based on 80 character limit
+        //Main loop to separate based on 80 character limit, used google for structure
         while (startIndex < length) {
             // Determine the maximum position to cut (80 characters away)
             int hardBreakIndex = Math.min(startIndex + 80, length);
@@ -275,8 +327,48 @@ public class Main{
                 break;
             }
         } 
+        //If this is pos or neg print out the replaced words and new words with their values
+        int tempIndex = 0;
+        if (wordType == "pos" || wordType == "neg") {
+            //Provide heading for section
+            outFile.print("\nWords updated to be more ");
+            if (wordType == "pos") {
+                outFile.print("positive:\n");
+            }
+            else if (wordType == "neg") {
+                outFile.print("negative:\n");
+            }
+            //for each entry output
+            for (SentList eachWord : newWords) {
+                //Temporary variables
+                SentList tempNewWords = newWords.get(tempIndex);
+                SentList tempWordsReplaced = wordsReplaced.get(tempIndex);
+                //Print the output
+                //Formatting syntax came from google
+                outFile.printf(
+                    "\t%-20s %-10.2f %-20s %-10.2f%n", 
+                    tempWordsReplaced.word,
+                    tempWordsReplaced.value,
+                    tempNewWords.word,
+                    tempNewWords.value
+                );
+                //Iterate the index counter
+                tempIndex++;
+            }
+            //Formatting syntax came from google
+            outFile.printf("\t%-20s %-10s %-20s %-10s%n", " ", "-------", "","------");
+            outFile.printf("\t%-20s %-10.2f %-20s %-10.2f%n", "Totals: ", wordsReplacedTotal, " ",newWordTotal);
+        }
+
         //Add new lines to outfile
         outFile.print("\n\n");
+        //If newWordTotal is not equal to 0, print the sentiment
+        if (wordsReplacedTotal != 0) {
+            //Calculate new positive sentiment and output
+            double sentimentValue;
+            sentimentValue = calcSentiment(sentList, reviewWordList, wordType);
+            printSentiment(sentimentValue, outFile, currentLabel);
+        }
     }
 
     public static double calcSentiment(Vector<SentList> sentList, ArrayList<Words> reviewWordList, String wordType) {

@@ -7,4 +7,9 @@ public class SentList {
       word = w;
       value = v;
     }
+    @Override
+    public String toString() {
+        // This is where you define the readable output format
+        return "[" + this.word + ", Value: " + this.value + "]";
+    }
 }
