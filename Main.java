@@ -72,12 +72,12 @@ public class Main{
                                          Vector<SentList> negList){
     //PRE:  accept the empty ArrayLists created in main
     //POST: the arrays are loaded with the proper words and information
-        String csvFilePath = "sentiment.txt";
+        String fileName = "sentiment.txt";
         String line;
         double tempValue;
         String tempString;
         //Open the sentiment file
-        try (BufferedReader br = new BufferedReader(new FileReader(csvFilePath))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             //Read the file line by line until the end of the file
             while ((line = br.readLine()) != null) {
                  // Split the line by commas into a string array called parts
@@ -100,8 +100,8 @@ public class Main{
                  else if (tempValue<-1.25) {
                     negList.add(newEntry);
                  }
-
             }
+            br.close();
         } 
         catch (IOException e) {
             System.out.println("Error reading the file.");
